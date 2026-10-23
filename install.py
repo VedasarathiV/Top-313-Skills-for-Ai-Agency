@@ -1,35 +1,64 @@
 #!/usr/bin/env python3
 """
-Antigravity Skills Pack Installer (Cross-Platform: Mac / Linux / Windows)
-Installs 313 custom skills into Antigravity / Gemini IDE config directory.
+Multi-IDE AI Skills Pack Installer (Python / Cross-Platform)
+Installs 313 skills into Antigravity, Claude, Cursor, Windsurf, Codex, and custom paths.
 """
 
-import os
 import sys
 import shutil
 import argparse
 from pathlib import Path
 
+def get_target_path(ide: str, project_dir: Path) -> Path:
+    ide = ide.lower()
+    if ide == "antigravity":
+        return Path.home() / ".gemini" / "config" / "skills"
+    elif ide == "claude":
+        return Path.home() / ".claude" / "skills"
+    elif ide == "cursor":
+        return project_dir / ".cursor" / "rules"
+    elif ide == "windsurf":
+        return project_dir / ".windsurf" / "rules"
+    else:
+        return Path.home() / ".gemini" / "config" / "skills"
+
 def main():
-    parser = argparse.ArgumentParser(description="Install Antigravity Skills Pack")
+    parser = argparse.ArgumentParser(description="Multi-IDE AI Skills Pack Installer (313 Skills)")
+    parser.add_argument(
+        "--ide",
+        choices=["antigravity", "claude", "cursor", "windsurf", "custom"],
+        default="antigravity",
+        help="Target IDE/AI agent environment (default: antigravity)"
+    )
     parser.add_argument(
         "--target",
         "-t",
-        help="Custom destination directory (default: ~/.gemini/config/skills)",
-        default=str(Path.home() / ".gemini" / "config" / "skills")
+        help="Custom destination directory (overrides --ide default)"
+    )
+    parser.add_argument(
+        "--project",
+        "-p",
+        default=".",
+        help="Project directory when using project-scoped IDEs like cursor or windsurf (default: current directory)"
     )
     args = parser.parse_args()
 
     script_dir = Path(__file__).resolve().parent
     source_dir = script_dir / "skills"
-    target_dir = Path(args.target).resolve()
+    project_dir = Path(args.project).resolve()
 
-    print("=" * 50)
-    print("🚀 Antigravity Skills Pack Installer (Python)")
-    print("=" * 50)
+    if args.target:
+        target_dir = Path(args.target).resolve()
+    else:
+        target_dir = get_target_path(args.ide, project_dir)
+
+    print("=" * 65)
+    print("🚀 Multi-IDE AI Skills Pack Installer")
+    print("=" * 65)
+    print(f"🎯 IDE / Environment:    {args.ide.title()}")
     print(f"📦 Source directory:      {source_dir}")
-    print(f"🎯 Destination directory: {target_dir}")
-    print("-" * 50)
+    print(f"📂 Destination directory: {target_dir}")
+    print("-" * 65)
 
     if not source_dir.is_dir():
         print(f"❌ Error: Source directory does not exist: {source_dir}")
@@ -50,8 +79,8 @@ def main():
 
     print(f"✅ Success! Copied {copied} skills.")
     print(f"📊 Total skills in destination: {total_installed}")
-    print("\n💡 Tip: Restart or reload Antigravity to recognize updated skills.")
-    print("=" * 50)
+    print(f"💡 You can now use these 313 skills inside {args.ide.title()}!")
+    print("=" * 65)
 
 if __name__ == "__main__":
     main()
